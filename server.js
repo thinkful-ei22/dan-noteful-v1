@@ -6,10 +6,14 @@ const data = require('./db/notes');
 console.log('Hello Noteful!');
 
 const express = require('express');
+const logger = require('./middleware/logger');
 
 const app = express();
 
+const { PORT } = require('./config');
+
 app.use(express.static('public'));
+app.use(logger);
 
 app.get('/api/notes', (req, res) => {
   const searchTerm = req.query.searchTerm;
@@ -26,7 +30,7 @@ app.get('/api/notes/:id', (req, res) => {
   res.json(data.find(item => item.id === Number(req.params.id)));
 });
 
-app.listen(8080, function () {
+app.listen(PORT, function () {
   console.info(`Server listening on ${this.address().port}`);
 }).on('error', err => {
   console.error(err);
