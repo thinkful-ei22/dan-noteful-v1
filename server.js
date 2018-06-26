@@ -17,15 +17,15 @@ const { PORT } = require('./config');
 app.use(express.static('public'));
 app.use(logger);
 
-app.get('/api/notes', (req, res) => {
-  const searchTerm = req.query.searchTerm;
-  if (searchTerm) {
-    const filteredList = data.filter(item => item.title.includes(searchTerm));
-    res.json(filteredList);
-  }
-  else {
-    res.json(data);
-  }
+app.get('/api/notes', (req, res, next) => {
+  const { searchTerm } = req.query;
+  
+  notes.filter(searchTerm, (err, list) => {
+    if (err) {
+      return next(err); //goes to error handler
+    }
+    res.json(list); //responds with filtered array
+  });
 });
 
 app.get('/boom', (req, res, next) => {
