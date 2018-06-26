@@ -32,8 +32,14 @@ app.get('/boom', (req, res, next) => {
   throw new Error('Boom!!!!!');
 });
 
-app.get('/api/notes/:id', (req, res) => {
-  res.json(data.find(item => item.id === Number(req.params.id)));
+app.get('/api/notes/:id', (req, res, next) => {
+  const id = Number(req.params.id);
+  notes.find(id, (err, item) => {
+    if (err) {
+      return next(err);
+    }
+    res.json(item); //responds with found item
+  });
 });
 
 app.use(function (req, res, next) {
