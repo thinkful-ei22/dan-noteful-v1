@@ -1,7 +1,9 @@
 'use strict';
 
-// Load array of notes
+// Simple In-Memory Database
 const data = require('./db/notes');
+const simDB = require('./db/simDB');
+const notes = simDB.initialize(data);
 
 console.log('Hello Noteful!');
 
