@@ -1,13 +1,12 @@
 'use strict';
 
+const express = require('express');
+
 // Simple In-Memory Database
 const data = require('./db/notes');
 const simDB = require('./db/simDB');
 const notes = simDB.initialize(data);
 
-console.log('Hello Noteful!');
-
-const express = require('express');
 const logger = require('./middleware/logger');
 const { PORT } = require('./config');
 
@@ -23,18 +22,54 @@ app.use(express.static('public'));
 // Parse request body
 app.use(express.json());
 
+// Get All (and search by query)
+app.get('/api/notes', (req, res, next) => {
+  const { searchTerm } = req.query;
+
+  notes.filter(searchTerm, (err, list) => {
+    if (err) {
+      return next(err);
+    }
+    res.json(list);
+  });
+});
+
+// Get a single item
+app.get('/api/notes/:id', (req, res, next) => {
+  const id = req.params.id;
+
+  notes.find(id, (err, item) => {
+    if (err) {
+      return next(err);
+    }
+    if (item) {
+      res.json(item);
+    } else {
+      next();
+    }
+  });
+});
+
+// Put update an item
 app.put('/api/notes/:id', (req, res, next) => {
   const id = req.params.id;
 
   /***** Never trust users - validate input *****/
   const updateObj = {};
-  const updateFields = ['title', 'content'];
+  const updateableFields = ['title', 'content'];
 
-  updateFields.forEach(field => {
+  updateableFields.forEach(field => {
     if (field in req.body) {
       updateObj[field] = req.body[field];
     }
   });
+
+  /***** Never trust users - validate input *****/
+  if (!updateObj.title) {
+    const err = new Error('Missing `title` in request body');
+    err.status = 400;
+    return next(err);
+  }
 
   notes.update(id, updateObj, (err, item) => {
     if (err) {
@@ -48,37 +83,20 @@ app.put('/api/notes/:id', (req, res, next) => {
   });
 });
 
-app.get('/api/notes', (req, res, next) => {
-  const { searchTerm } = req.query;
-  
-  notes.filter(searchTerm, (err, list) => {
-    if (err) {
-      return next(err); //goes to error handler
-    }
-    res.json(list); //responds with filtered array
-  });
+// DEMO ONLY: brute-force way to test our error handler
+app.get('/throw', (req, res, next) => {
+  throw new Error('Boom!!');
 });
 
-app.get('/boom', (req, res, next) => {
-  throw new Error('Boom!!!!!');
-});
-
-app.get('/api/notes/:id', (req, res, next) => {
-  const id = Number(req.params.id);
-  notes.find(id, (err, item) => {
-    if (err) {
-      return next(err);
-    }
-    res.json(item); //responds with found item
-  });
-});
-
+// Catch-all 404
 app.use(function (req, res, next) {
-  var err = new Error('Not found');
+  const err = new Error('Not Found');
   err.status = 404;
-  res.status(404).json({message: 'Not Found'});
+  next(err);
 });
 
+// Catch-all Error handler
+// NOTE: we'll prevent stacktrace leak in later exercise
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.json({
@@ -87,6 +105,7 @@ app.use(function (err, req, res, next) {
   });
 });
 
+// Listen for incoming connections
 app.listen(PORT, function () {
   console.info(`Server listening on ${this.address().port}`);
 }).on('error', err => {

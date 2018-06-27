@@ -1,9 +1,9 @@
 'use strict';
 
-const logger = (req, res, next) => {
-  const date = new Date ();
-  console.log(`${date.toLocaleDateString()} ${req.method} ${req.url}`);
+const simpleLogger = function (req, res, next) {
+  const now = new Date();
+  console.log(`${now.toLocaleString()} ${req.method} ${req.url}`);
   next();
 };
 
-module.exports = logger;
+module.exports = simpleLogger;
