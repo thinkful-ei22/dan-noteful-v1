@@ -36,7 +36,7 @@ router.get('/notes/:id', (req, res, next) => {
   });
 });
 
-//Post (insert) an item
+//Post (insert) a note
 router.post('/notes', (req, res, next) => {
   const { title, content } = req.body;
 
@@ -58,6 +58,22 @@ router.post('/notes', (req, res, next) => {
     } else {
       next();
     }
+  });
+});
+
+//Delete a note
+router.delete('/notes/:id', (req, res, next) => {
+  const id = req.params.id;
+
+  notes.delete(id, (err, response) => {
+    if (err) {
+      return next(err);
+    }
+    if (!response){
+      return next();
+    }
+    console.log(`Note with id: '${req.params.id}'  deleted!`);
+    res.status(204).end();
   });
 });
 

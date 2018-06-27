@@ -59,5 +59,4 @@ notes.delete(id, (err, length) => {
   if (err || !length) console.error('something is wrong!');
 
   console.log('deleted!');
-  //console.log(notes);
 });
