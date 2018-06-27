@@ -20,7 +20,7 @@ app.use(express.static('public'));
 app.use(express.json());
 
 //Mounter router
-app.use(notesRouter);
+app.use('/api', notesRouter);
 
 // DEMO ONLY: brute-force way to test our error handler
 app.get('/throw', (req, res, next) => {
