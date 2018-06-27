@@ -7,14 +7,14 @@ const data = require('./db/notes');
 const simDB = require('./db/simDB');
 const notes = simDB.initialize(data);
 
-const logger = require('./middleware/logger');
+const morgan = require('morgan');
 const { PORT } = require('./config');
 
 // Create an Express application
 const app = express();
 
-// Log all requests
-app.use(logger);
+// Log all requests with morgan
+app.use(morgan('dev'));
 
 // Create a static webserver
 app.use(express.static('public'));
