@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Scratch Document</title>
+</head>
+<body>
+  
+  <script type="text/javascript" src="//code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
+  <script type="text/javascript" src='./scripts/api.js'></script>
+  <script type="text/javascript">
+
+  
+    //test remove
+      api.remove(1008)
+        .then(response => {
+          return response;
+      })
+        .then(response => {
+          if (!response) {
+            console.log('Testing remove... Note id: 1008 successfully deleted!');
+          }
+        });
+
+    // test get all
+      api.search({})
+        .then(response => {
+          console.log('Testing get all', ...response);
+        });
+
+      // test get all with search term
+      api.search({ searchTerm: 'government' })
+        .then(response => {
+          console.log('Testing get all with search term', ...response);
+        });
+
+      //test update
+      api.update(1000, {title: 'Just a test title', content: 'Blah Blah Blah' })
+        .then(response => {
+          console.log('Testing update. Updated note goes here:', response);
+        });
+
+      //test create
+      api.create({ title: 'New Title Here!', content: 'Testing my create method here. Some blah blah blah text in the content' })
+        .then(response => {
+            console.log('Testing create. New note should print here:', response);
+          }
+        );
+
+      //test details
+      api.details(1000)
+          .then(response => {
+              console.log('Testing details:', response);
+            });
+
+  </script>
+</body>
+</html>

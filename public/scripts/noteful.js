@@ -42,11 +42,11 @@ const noteful = (function () {
 
       const noteId = getNoteIdFromElement(event.currentTarget);
 
-      api.details(noteId, detailsResponse => {
-        store.currentNote = detailsResponse;
-        render();
-      });
-
+      api.details(noteId)
+        .then(detailsResponse => {
+          store.currentNote = detailsResponse;
+          render(); 
+        });
     });
   }
 
@@ -57,11 +57,11 @@ const noteful = (function () {
       const searchTerm = $('.js-note-search-entry').val();
       store.currentSearchTerm = searchTerm ? { searchTerm } : {};
 
-      api.search(store.currentSearchTerm, searchResponse => {
-        store.notes = searchResponse;
-        render();
-      });
-
+      api.search(store.currentSearchTerm)
+        .then(searchResponse => {
+          store.notes = searchResponse;
+          render();
+        });
     });
   }
 
@@ -79,42 +79,52 @@ const noteful = (function () {
 
       if (noteObj.id) {
 
-        api.update(store.currentNote.id, noteObj, updateResponse => {
-          store.currentNote = updateResponse;
+        api.update(store.currentNote.id, noteObj)
+          .then(updateResponse => {
+            store.currentNote = updateResponse;
 
-          api.search(store.currentSearchTerm, searchResponse => {
+            return api.search(store.currentSearchTerm);
+          })
+          .then(searchResponse => {
             store.notes = searchResponse;
             render();
           });
 
-        });
-
       } else {
-
-        console.log('Create Note, coming soon...');
-
+        api.create(noteObj)
+          .then(createResponse => {
+            store.notes.push(createResponse);
+            render();
+          });
       }
-
     });
   }
 
   function handleNoteStartNewSubmit() {
     $('.js-start-new-note-form').on('submit', event => {
       event.preventDefault();
-
-      console.log('Start New Note, coming soon...');
-
+      store.currentNote = false;
+      render();
     });
   }
 
   function handleNoteDeleteClick() {
     $('.js-notes-list').on('click', '.js-note-delete-button', event => {
       event.preventDefault();
+      const noteId = getNoteIdFromElement(event.currentTarget);
 
-      console.log('Delete Note, coming soon...');
-      
+      api.remove(noteId)
+        .then(() => {
+          return api.search(store.currentSearchTerm);
+        })
+        .then(searchResponse => {
+          store.notes = searchResponse;
+          store.currentNote = false;
+          render();
+        });
     });
   }
+
 
   function bindEventListeners() {
     handleNoteItemClick();

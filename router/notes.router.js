@@ -20,15 +20,6 @@ router.get('/notes', (req, res, next) => {
       next(err);
     });
 
-
-  //   notes.filter(searchTerm, (err, list) => {
-  //     if (err) {
-  //       return next(err);
-  //     }
-  //     res.json(list);
-  //   });
-  // });
-
   // Get a single item
   router.get('/notes/:id', (req, res, next) => {
     const id = req.params.id;
@@ -72,18 +63,6 @@ router.get('/notes', (req, res, next) => {
       });
   });
 
-
-  // notes.create(newItem, (err, item) => {
-  //   if (err) {
-  //     return next(err);
-  //   }
-  //   if (item) {
-  //     res.location(`http://${req.headers.host}/notes/${item.id}`).status(201).json(item);
-  //   } else {
-  //     next();
-  //   }
-  // });
-
 });
 
 //Delete a note
@@ -104,19 +83,6 @@ router.delete('/notes/:id', (req, res, next) => {
     });
 });
   
-// notes.delete(id, (err, response) => {
-//   if (err) {
-//     return next(err);
-//   }
-//   if (!response){
-//     return next();
-//   }
-//   console.log(`Note with id: '${req.params.id}'  deleted!`);
-//   res.status(204).end();
-// });
-//});
-
-
 // Put update an item
 router.put('/notes/:id', (req, res, next) => {
   const id = req.params.id;
@@ -149,17 +115,6 @@ router.put('/notes/:id', (req, res, next) => {
     .catch(err => {
       next(err);
     });
-
-  // notes.update(id, updateObj, (err, item) => {
-  //   if (err) {
-  //     return next(err);
-  //   }
-  //   if (item) {
-  //     res.json(item);
-  //   } else {
-  //     next();
-  //   }
-  // });
 });
 
 module.exports = router;
