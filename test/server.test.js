@@ -187,6 +187,31 @@ describe('PUT /api/notes/:id', function(){
             expect(response.body).to.deep.include({ message: 'Missing `title` in request body' });
           });
       });
+  });
+});
 
+describe('DELETE /api/notes/:id',function () {
+  it('should delete an item by id', function(){
+    return chai.request(app)
+      .get('/api/notes')
+      .then(res => {
+        const noteId = res.body[0].id;
+        const numOfNotes = res.body.length;
+        return chai.request(app)
+          .delete('/api/notes/' + noteId)
+          .then(res2 => {
+            expect(res2).to.have.status(204);
+            return chai.request(app)
+              .get('/api/notes')
+              .then(res3 => {
+                expect(res3.body).to.have.lengthOf(numOfNotes-1);
+                return chai.request(app)
+                  .get('/api/notes/' + noteId)
+                  .then(res4 => {
+                    expect(res4).to.have.status(404);
+                  });
+              });
+          });
+      });
   });
 });
