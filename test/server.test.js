@@ -90,25 +90,52 @@ describe('GET /api/notes', function(){
         expect(res.body).to.be.an('array').that.is.empty;
       });
   });
+});
 
-  describe('GET /api/notes/:id', function(){
-    it('should return correct note object with id, title and content for a given id', function(){
-      return chai.request(app)
-        .get('/api/notes')
-        .then(res1 => {
-          const firstNote = res1.body[0];
-          const firstNoteId = firstNote.id;
-          return chai.request(app)
-            .get(`/api/notes/${firstNoteId}`)
-            .then(res2 => {
-              expect(res2.body).to.be.an('object').that.is.deep.equal(firstNote);
-              return chai.request(app)
-                .get('/api/notes/DOESNOTEXIST')
-                .then(res3 => {
-                  expect(res3).to.have.status(404);
-                });
-            });
-        });
-    });
+describe('GET /api/notes/:id', function(){
+  it('should return correct note object with id, title and content for a given id and should respond with a 404 for an invalid id', function(){
+    return chai.request(app)
+      .get('/api/notes')
+      .then(res1 => {
+        const firstNote = res1.body[0];
+        const firstNoteId = firstNote.id;
+        return chai.request(app)
+          .get(`/api/notes/${firstNoteId}`)
+          .then(res2 => {
+            expect(res2.body).to.be.an('object').that.is.deep.equal(firstNote);
+            return chai.request(app)
+              .get('/api/notes/DOESNOTEXIST')
+              .then(res3 => {
+                expect(res3).to.have.status(404);
+              });
+          });
+      });
+  });
+});
+
+describe('POST /api/notes', function (){
+  it('should create and return a new item with location header when provided valid data', function(){
+    const newNote = {title: 'Where is my cheese?', content: 'My cheese has escaped the fridge and ran away with his friends lettuce, avocado, lettuce, cucumbers and olive oil'};
+    return chai.request(app)
+      .post('/api/notes')
+      .send(newNote)
+      .then(res => {
+        expect(res).to.have.status(201);
+        expect(res).to.be.json.and.to.have.header('location');
+        expect(res.body).to.include.keys('title', 'content');
+        expect(res.body).to.deep.equal(Object.assign(newNote, {id: res.body.id}));
+      });
+  });
+
+  it('should return an object with a message property "Missing title in request body" when missing "title" field', function(){
+    const newItemWithoutTitle = {content: 'My cheese has escaped the fridge and ran away with his friends lettuce, avocado, lettuce, cucumbers and olive oil'};
+    return chai.request(app)
+      .post('/api/notes')
+      .send(newItemWithoutTitle)
+      .then(res => {
+        expect(res).to.have.status(400);
+        expect(res.body).to.deep.include({ message: 'Missing `title` in request body'});
+      });
+      
   });
 });
