@@ -139,3 +139,54 @@ describe('POST /api/notes', function (){
       
   });
 });
+
+describe('PUT /api/notes/:id', function(){
+  it('should update and return a note object when given valid data', function(){
+    const updatedObj = { 'title': 'Lebron James Decides to Join Boston Celtics',
+      'content': 'Lebron James has joined Boston Celtics and re-united with his former teammate in Cleveland Kyrie Irving. Lebron will play under number 23 in Boston -- the same number he had when playing for the Cavaliers' };
+    return chai.request(app)
+      .get('/api/notes')
+      .then(res => {
+        const noteId = res.body[0].id;
+        return chai.request(app)
+          .put(`/api/notes/${noteId}`)
+          .send(updatedObj)
+          .then(response => {
+            expect(response).to.be.json;
+            expect(response.body).to.deep.equal(Object.assign({id: noteId}, updatedObj));
+          });
+      });
+  });
+
+  it('should respond with a 404 for an invalid id (/api/notes/DOESNOTEXIST)', function(){
+    const badId = 'DOESNOTEXIST';
+    const updatedObj = {
+      'title': 'Lebron James Decides to Join Boston Celtics',
+      'content': 'Lebron James has joined Boston Celtics and re-united with his former teammate in Cleveland Kyrie Irving. Lebron will play under number 23 in Boston -- the same number he had when playing for the Cavaliers'
+    };
+    return chai.request(app)
+      .put(`/api/notes/${badId}`)
+      .send(updatedObj)
+      .then(res => {
+        expect(res).to.have.status(404);
+        expect(res.body).to.deep.include({message: 'Not Found'});
+      });
+  });
+
+  it('should return an object with a message property "Missing title in request body" when missing "title" field', function(){
+    const newItemWithoutTitle = { content: 'My cheese has escaped the fridge and ran away with his friends lettuce, avocado, lettuce, cucumbers and olive oil' };
+    return chai.request(app)
+      .get('/api/notes')
+      .then(res => {
+        const noteId = res.body[0].id;
+        return chai.request(app)
+          .put('/api/notes/'+ noteId)
+          .send(newItemWithoutTitle)
+          .then(response => {
+            expect(response).to.have.status(400);
+            expect(response.body).to.deep.include({ message: 'Missing `title` in request body' });
+          });
+      });
+
+  });
+});
